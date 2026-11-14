@@ -1,6 +1,6 @@
 # yardkit API 速查
 
-路径基准：`/home/wxr/.project/yardkit`。详细说明见 kit 的 `README.md`。
+路径基准：`/home/wxr/.project/yardkit`。
 
 ## 入口
 
@@ -64,5 +64,5 @@ const group = b.finish({ size: [1, 2, 0.1], colliders: [{ min: [-0.5, 0, -0.05],
 
 ## 文档
 
-`README.md`（总览）、`docs/PACKS.md`（写包清单）、`docs/LESSONS-MOON.md`（12 条经验）、
+`docs/PACKS.md`（写包清单）、`docs/LESSONS-MOON.md`（12 条经验）、
 `docs/EXPERIMENT-MOON.md`（对照实验）、`docs/AB-LIGHTING.md`（打光 A/B）。

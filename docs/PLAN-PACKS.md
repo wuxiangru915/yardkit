@@ -16,7 +16,7 @@
 |---|---|
 | 包 A 代理 | `packs/moon/*`、`demos/moon.js`（新增 `mode=c`） |
 | 包 B 代理 | `packs/cozy/*`、`demos/cozy-scene.{html,js}` |
-| 我 | `test/`、`README.md`、`docs/`、`shots/`、内核（如需，最小改动） |
+| 我 | `test/`、`docs/`、`shots/`、内核（如需，最小改动） |
 
 ## T1 月球包：5 个新模型（代理 A）
 
@@ -44,7 +44,6 @@
 - [x] `test/check.mjs` 增加两个包的检查项
 - [x] `test/render.mjs` 增加两个 demo
 - [x] 截图：`shots/cozy-scene.jpg`、`shots/moon-real.jpg`；与 `shots/moon-ab.jpg` 并排
-- [x] `README.md` 增加 `packs/` 说明与 demo 列表
 - [x] `docs/PACKS.md`：主题包的目录规范 + 一个"新包清单"（照抄即可）
 - [x] 全量跑一遍：71+ 项检查、全部 demo 0 报错
 - [x] 明确写出两个包的**实际代码量**与**哪部分最花时间**

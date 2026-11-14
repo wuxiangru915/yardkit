@@ -9,7 +9,7 @@ The kit is a **procedural, zero-texture** three.js library: primitives → `Prop
 `userData.size` + `userData.colliders`. Styles are *layers*, not forks: one kernel, many theme packs.
 
 Base path: the yardkit repo root — `${KIT:-/home/wxr/.project/yardkit}` (the skill is self-contained; copy `assets/pack-template` into the repo's `packs/`).
-Read first when unfamiliar: `README.md`, `docs/PACKS.md`, `docs/LESSONS-MOON.md`.
+Read first when unfamiliar: `docs/PACKS.md`, `docs/LESSONS-MOON.md`.
 
 ## Step 0 — decide the silhouette class (do this before writing code)
 
@@ -78,7 +78,7 @@ One agent per pack, disjoint file ownership, no shared files:
 |---|---|---|
 | agent A | `packs/<a>/**`, `demos/<a>-*` | `src/`, other packs, `test/`, docs |
 | agent B | `packs/<b>/**`, `demos/<b>-*` | same |
-| you | `test/`, `docs/`, `README.md`, `shots/` | agent files |
+| you | `test/`, `docs/`, `shots/` | agent files |
 
 Brief each agent with: goal + why, the five parts, API paths, the three acceptance commands, *exact* chromium and
 playwright paths from `references/verification.md`, and "report real numbers, not claims". Afterwards verify
@@ -88,8 +88,8 @@ yourself: md5 kernel, read the screenshots, run the suite.
 
 - Demo page `demos/<name>.html` + `.js` with HUD line; register it in `test/render.mjs` targets.
 - Screenshot into `shots/`, composite comparisons with PIL (see `references/verification.md`).
-- Update `README.md` demo table + pack table; write `docs/EXPERIMENT-<topic>.md` (question, variables, result,
-  failures, cost) and add measured cost to `docs/PACKS.md`.
+- Write `docs/EXPERIMENT-<topic>.md` (question, variables, result, failures, cost) and add measured cost to
+  `docs/PACKS.md`.
 - State the honest limits (what still looks wrong) — the user values that more than polish.
 
 ## Pitfalls (all cost us real time)
