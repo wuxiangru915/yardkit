@@ -61,8 +61,8 @@ font = ImageFont.truetype('/home/wxr/.local/share/fonts/NotoSansSC-Bold.otf', 24
 font_s = ImageFont.truetype('/home/wxr/.local/share/fonts/NotoSansSC-Regular.otf', 17)
 ```
 
-- 三宫格：`shots/packs.jpg`（工业 / 月球 / 治愈）
-- A/B：`shots/moon-ab.jpg`
+- 三宫格：`shots/packs.png`（工业 / 月球 / 治愈）
+- A/B：`shots/moon-ab.png`
 - 版面：顶部标题 + 每格下方两行说明（标题、副标题），格子 760×434，间隔 16。
 
 ## 报告格式（给用户看的）

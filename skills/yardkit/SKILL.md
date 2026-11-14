@@ -8,7 +8,7 @@ description: Build scenes and theme packs with yardkit, the zero-texture procedu
 The kit is a **procedural, zero-texture** three.js library: primitives → `PropBuilder` → batched meshes with
 `userData.size` + `userData.colliders`. Styles are *layers*, not forks: one kernel, many theme packs.
 
-Base path: `/home/wxr/.project/yardkit` (override with `$KIT` if moved).
+Base path: the yardkit repo root — `${KIT:-/home/wxr/.project/yardkit}` (the skill is self-contained; copy `assets/pack-template` into the repo's `packs/`).
 Read first when unfamiliar: `README.md`, `docs/PACKS.md`, `docs/LESSONS-MOON.md`.
 
 ## Step 0 — decide the silhouette class (do this before writing code)
