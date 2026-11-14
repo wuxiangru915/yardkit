@@ -10,7 +10,7 @@ toolkit.
 - Original work: Saltline (single-file browser FPS). Author and license: unknown.
 - Extraction and the code in this repository: Copyright (c) 2026 wuxiangru915,
   released under the MIT License (see LICENSE).
-- Bundled `vendor/three`: three.js r180, MIT License, Copyright three.js authors.
+- three.js (MIT, Copyright three.js authors) is a peer dependency, installed via npm; it is not bundled here.
 
 If you are the author of the original work and want attribution changed or
 this repository taken down, please open an issue.

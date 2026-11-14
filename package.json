@@ -14,8 +14,7 @@
     "index.js",
     "geometry.js",
     "materials.js",
-    "src",
-    "assets"
+    "src"
   ],
   "sideEffects": false,
   "keywords": [
@@ -39,7 +38,8 @@
   },
   "devDependencies": {
     "playwright-core": "^1.63.0",
-    "postprocessing": "^6.39.4"
+    "postprocessing": "^6.39.4",
+    "three": "^0.180.0"
   },
   "repository": {
     "type": "git",
