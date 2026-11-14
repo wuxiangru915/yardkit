@@ -43,7 +43,7 @@
 
 - [x] `test/check.mjs` 增加两个包的检查项
 - [x] `test/render.mjs` 增加两个 demo
-- [x] 截图：`shots/cozy-scene.jpg`、`shots/moon-real.jpg`；与 `shots/moon-ab.jpg` 并排
+- [x] 截图（`npm run render` → `shots/*.png`）；与 `shots/moon-ab.jpg` 并排
 - [x] `docs/PACKS.md`：主题包的目录规范 + 一个"新包清单"（照抄即可）
 - [x] 全量跑一遍：71+ 项检查、全部 demo 0 报错
 - [x] 明确写出两个包的**实际代码量**与**哪部分最花时间**
