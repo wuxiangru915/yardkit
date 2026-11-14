@@ -1,0 +1,19 @@
+Yardkit
+=======
+
+This library is derived from "Saltline", a single-file browser FPS built as a
+claude.ai artifact. The original artifact was distributed without a license
+statement. Geometry parameters, naming conventions, shader ideas and decal
+designs were extracted from that source and reorganised into this reusable
+toolkit.
+
+- Original work: Saltline (single-file browser FPS). Author and license: unknown.
+- Extraction and the code in this repository: Copyright (c) 2026 wuxiangru915,
+  released under the MIT License (see LICENSE).
+- Bundled `vendor/three`: three.js r180, MIT License, Copyright three.js authors.
+
+If you are the author of the original work and want attribution changed or
+this repository taken down, please open an issue.
+
+No third-party images, fonts, or audio are included. All materials are
+procedural GLSL; all models are generated from primitives at runtime.

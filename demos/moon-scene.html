@@ -1,0 +1,15 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><link rel="icon" href="data:,">
+<title>yardkit · 月球基地</title>
+<style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#view{display:block;width:100%;height:100%;cursor:grab}
+#view:active{cursor:grabbing}
+.hud{position:fixed;left:24px;top:20px;color:#e8eef3;font:12px/1.7 ui-monospace,monospace;text-shadow:0 1px 3px #000;pointer-events:none}
+.hud b{font-size:17px;letter-spacing:.08em;color:#9fd0ff;display:block}
+.hud span{opacity:.75}
+.hint{position:fixed;left:24px;bottom:18px;color:#cfd8e2;opacity:.55;font:11px/1.6 ui-monospace,monospace;pointer-events:none}</style>
+<script type="importmap">
+{ "imports": { "three": "../vendor/three/three.module.js", "three/addons/": "../vendor/three/jsm/" } }
+</script></head>
+<body><canvas id="view"></canvas>
+<div class="hud"><b>YARDKIT · MOON BASE</b><span id="sub">—</span></div>
+<div class="hint">拖动旋转 · 滚轮缩放 · 不动的时候自己慢慢转</div>
+<script type="module" src="./moon-scene.js"></script></body></html>

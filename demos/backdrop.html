@@ -1,0 +1,13 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><link rel="icon" href="data:,">
+<title>yardkit · 港区背板</title>
+<style>html,body{margin:0;height:100%;background:#0d1218;overflow:hidden}#view{display:block;width:100%;height:100%}
+.hud{position:fixed;left:24px;top:20px;color:#e8e2d6;font:12px/1.7 ui-monospace,monospace;text-shadow:0 1px 3px #000;pointer-events:none}
+.hud b{font-size:17px;letter-spacing:.08em;color:#e8c37a;display:block}
+.hud a{color:#9fc7d8;pointer-events:auto}</style>
+<script type="importmap">
+{ "imports": { "three": "../vendor/three/three.module.js", "three/addons/": "../vendor/three/jsm/" } }
+</script></head>
+<body><canvas id="view"></canvas>
+<div class="hud"><b>YARDKIT · BACKDROP</b><span id="stats">—</span>
+<br><a href="?cam=crane">crane</a> · <a href="?cam=ship">ship</a> · <a href="?cam=boat">boat</a> · <a href="?cam=wide">wide</a></div>
+<script type="module" src="./backdrop.js"></script></body></html>

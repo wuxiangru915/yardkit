@@ -1,0 +1,49 @@
+{
+  "name": "yardkit",
+  "version": "0.3.0",
+  "description": "Yardkit：从单文件 FPS 抽取的程序化 three.js 资产工具箱 —— 模型（载具/武器/敌人/道具/设施/集装箱）+ 30 个零贴图 GLSL 表面 + 关卡/贴花/手部。",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./geometry": "./geometry.js",
+    "./materials": "./materials.js",
+    "./src/*": "./src/*"
+  },
+  "files": [
+    "index.js",
+    "geometry.js",
+    "materials.js",
+    "src",
+    "assets"
+  ],
+  "sideEffects": false,
+  "keywords": [
+    "three",
+    "procedural",
+    "procedural-materials",
+    "glsl",
+    "game-assets",
+    "kitbash",
+    "yardkit"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "three": "^0.180.0"
+  },
+  "scripts": {
+    "test": "node test/check.mjs",
+    "demo": "python3 -m http.server 8177 --bind 127.0.0.1",
+    "build:glsl": "node tools/build-glsl.mjs",
+    "render": "node test/render.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.63.0",
+    "postprocessing": "^6.39.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wuxiangru915/yardkit.git"
+  },
+  "homepage": "https://github.com/wuxiangru915/yardkit"
+}
