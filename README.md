@@ -1,7 +1,5 @@
 # yardkit
 
-**在线演示**：<https://wuxiangru915.github.io/yardkit/> · **GitHub**：<https://github.com/wuxiangru915/yardkit>
-
 ![三个主题](shots/packs.jpg)
 
 把单文件浏览器 FPS《Saltline》里值得复用的东西，抽成一套能在别的 three.js 项目里直接用的工具：
