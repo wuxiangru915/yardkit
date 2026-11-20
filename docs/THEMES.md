@@ -70,3 +70,6 @@ scene.fog = new THREE.FogExp2(0xd8c3a2, 0.012);
 | 低多边形、纯色、扁平 | 不用写表面：直接用 `MeshLambertMaterial + flatShading`，比 GLSL 便宜 |
 | 有机、布料、植物、真实家具 | 别写 GLSL，去建模（Blender → glTF），程序化表面救不了形 |
 | 这个题材特有的表面（沙、墙纸、月壤） | 写 `registerSurface`，40 行以内 |
+
+
+API 速查见 [`API.md`](API.md)。

@@ -5,20 +5,24 @@ set -uo pipefail
 KIT="${KIT:-/home/wxr/.project/yardkit}"
 cd "$KIT" || { echo "kit not found: $KIT"; exit 2; }
 
-echo "== 1/3 node checks"
+echo "== 1/4 node checks"
 node test/check.mjs | tail -3
 node_rc=${PIPESTATUS[0]}
 
+echo "== 2/4 typecheck"
+npm run typecheck
+type_rc=$?
+
 if [[ "${1:-}" != "--quick" ]]; then
-  echo "== 2/3 browser demos"
+  echo "== 3/4 browser demos"
   node test/render.mjs | tail -20
   render_rc=${PIPESTATUS[0]}
 else
-  echo "== 2/3 browser demos (skipped)"
+  echo "== 3/4 browser demos (skipped)"
   render_rc=0
 fi
 
-echo "== 3/3 kernel untouched"
+echo "== 4/4 kernel untouched"
 if [[ -f /tmp/kit-src-baseline.txt ]]; then
   if md5sum -c /tmp/kit-src-baseline.txt 2>&1 | grep -q 'FAILED'; then
     echo "FAIL: kernel files changed"
@@ -32,4 +36,4 @@ else
   md5_rc=0
 fi
 
-exit $(( node_rc || render_rc || md5_rc ))
+exit $(( node_rc || type_rc || render_rc || md5_rc ))
