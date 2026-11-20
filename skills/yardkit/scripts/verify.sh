@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# yardkit 验收：node 检查 + 浏览器 demo + 内核 md5。
-# 用法：bash scripts/verify.sh [--quick]
+# yardkit verification: node checks + typecheck + browser demos + kernel md5.
+# Usage: bash scripts/verify.sh [--quick]
 set -uo pipefail
 KIT="${KIT:-/home/wxr/.project/yardkit}"
 cd "$KIT" || { echo "kit not found: $KIT"; exit 2; }

@@ -34,7 +34,7 @@ src/
   hands.js weapons.js viewmodel.js enemies.js              第一人称（FPS 用）
 demos/              演示页
 docs/               API.md、THEMES.md、MATERIALS.md、PERF.md、QUALITY.md、TYPES.md、THREE-VERSIONS.md
-skills/yardkit/     仓库内 AI coding agent skill（不是人类文档）
+skills/yardkit/     agent workflow + verification checklist
 test/check.mjs      无依赖自检；test/render.mjs 无头截图验收
 ```
 
