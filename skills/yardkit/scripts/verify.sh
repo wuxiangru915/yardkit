@@ -20,7 +20,7 @@ fi
 
 echo "== 3/3 kernel untouched"
 if [[ -f /tmp/kit-src-baseline.txt ]]; then
-  if md5sum -c /tmp/kit-src-baseline.txt 2>&1 | grep -v ': OK'; then
+  if md5sum -c /tmp/kit-src-baseline.txt 2>&1 | grep -q 'FAILED'; then
     echo "FAIL: kernel files changed"
     md5_rc=1
   else

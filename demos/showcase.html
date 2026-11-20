@@ -1,0 +1,64 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><link rel="icon" href="data:,">
+<title>yardkit · 一页看全</title>
+<style>
+  :root{--bg:#0a0d11;--card:#121820e6;--line:#25303d;--fg:#e6edf5;--dim:#8b9aab;--accent:#9fd0ff}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);
+    font:13px/1.6 ui-sans-serif,system-ui,"Noto Sans SC",sans-serif;-webkit-font-smoothing:antialiased}
+  #view{position:fixed;inset:0;display:block;width:100%;height:100%}
+  #labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+  #labels div{position:absolute;left:0;top:0;font:11px/1.2 ui-monospace,monospace;color:#9fb0c2;
+    white-space:nowrap;letter-spacing:.02em;transition:opacity .12s}
+
+  header{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;gap:18px;
+    padding:14px 22px;background:linear-gradient(#0a0d11ee,#0a0d1100);z-index:5}
+  header b{font:600 16px/1 ui-monospace,monospace;letter-spacing:.06em}
+  header b i{font-style:normal;color:var(--accent)}
+  header .sub{color:var(--dim);font-size:11.5px;letter-spacing:.04em}
+  nav{display:flex;gap:6px;margin-left:auto}
+  button{font:12px/1 inherit;color:var(--dim);background:#12182099;border:1px solid var(--line);
+    border-radius:8px;padding:8px 12px;cursor:pointer;transition:.15s;backdrop-filter:blur(6px)}
+  button:hover{color:var(--fg);border-color:#3a4a5e}
+  button.on{color:#0b1016;background:var(--accent);border-color:var(--accent);font-weight:600}
+  button i{font-style:normal;opacity:.6;font-size:10.5px;margin-left:3px}
+  button.on i{opacity:.75}
+
+  #panel{position:fixed;left:22px;bottom:20px;max-width:min(560px,calc(100vw - 44px));
+    background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    backdrop-filter:blur(8px);z-index:5}
+  #panel h3{margin:0 0 4px;font:600 12px/1.4 ui-monospace,monospace;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--dim)}
+  #panel p{margin:0;color:#b9c8d8;font-size:12.5px}
+  #panel .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  #panel code{font-family:ui-monospace,monospace;color:var(--accent);font-size:12px}
+
+  #hud{position:fixed;right:22px;bottom:22px;text-align:right;font:11px/1.7 ui-monospace,monospace;
+    color:#5f7085;z-index:5;pointer-events:none}
+  #hud b{color:var(--accent);font-weight:600}
+  #boot{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:9;
+    font:12px/1 ui-monospace,monospace;color:var(--dim);letter-spacing:.1em}
+  @media (max-width:720px){header .sub{display:none}#panel{left:12px;right:12px;bottom:12px}}
+</style>
+<script type="importmap">
+{ "imports": { "three": "../node_modules/three/build/three.module.js", "three/addons/": "../node_modules/three/examples/jsm/" } }
+</script></head>
+<body>
+<canvas id="view"></canvas>
+<div id="labels"></div>
+
+<header>
+  <b>yardkit<i>.</i></b><span class="sub">零贴图 · 程序化 three.js 资产库</span>
+  <nav>
+    <button data-tab="materials" class="on">材质<i>30</i></button>
+    <button data-tab="models">模型<i>33</i></button>
+    <button data-tab="themes">主题<i>3</i></button>
+    <button id="post" class="on">后处理</button>
+  </nav>
+</header>
+
+<div id="panel"></div>
+<div id="hud"></div>
+<div id="boot">正在烘程序化表面…</div>
+
+<script type="module" src="./showcase.js"></script>
+</body></html>

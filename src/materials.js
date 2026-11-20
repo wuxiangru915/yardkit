@@ -133,7 +133,7 @@ function makePatternTexture(type) {
   return tex;
 }
 
-export function createMaterialStore({ createMaterial = null, averages = null, surfaceMap = null } = {}) {
+export function createMaterialStore({ createMaterial = null, averages = null, surfaceMap = null, tier = 'live' } = {}) {
   const cache = new Map();
   const textures = new Map();
 
@@ -156,6 +156,7 @@ export function createMaterialStore({ createMaterial = null, averages = null, su
       const m = createMaterial(glslName, {
         tint: baseColor,
         avg: averages ? averages[glslName] : undefined,
+        tier,
       });
       if (opts.vertexColors) m.vertexColors = true;
       if (side !== undefined) m.side = side;

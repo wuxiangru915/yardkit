@@ -95,6 +95,8 @@ export function createPost(renderer, { quality = 'high' } = {}) {
   const W = Math.max(2, Math.floor(size.x * dpr));
   const H = Math.max(2, Math.floor(size.y * dpr));
   const samples = quality === 'low' ? 0 : 4;
+  // low 档：不跑第二级（1/4 分辨率）模糊，bloom 只剩一圈宽光晕。
+  const cheapBloom = quality === 'low';
 
   const depthTexture = new THREE.DepthTexture(W, H);
   depthTexture.type = THREE.UnsignedIntType;
@@ -174,6 +176,17 @@ export function createPost(renderer, { quality = 'high' } = {}) {
       rtTmp.setSize(W2 >> 1, H2 >> 1);
       compositeMat.uniforms.uAspect.value = W2 / H2;
     },
+    dispose() {
+      rtScene.dispose();
+      rtBright.dispose();
+      rtBlurA.dispose();
+      rtBlurB.dispose();
+      rtTmp.dispose();
+      brightMat.dispose();
+      blurMat.dispose();
+      compositeMat.dispose();
+      quadGeo.dispose();
+    },
     render(sceneRef, cameraRef, time) {
       // 1) 场景 → HDR
       const auto = renderer.info.autoReset;
@@ -192,14 +205,18 @@ export function createPost(renderer, { quality = 'high' } = {}) {
       brightMat.uniforms.tSrc.value = rtScene.texture;
       pass(brightMat, rtBright);
 
-      // 3) 两级模糊
+      // 3) 模糊：high = 两级，low = 一级
       blur(rtBright, rtBlurA, W >> 1, H >> 1);
-      blur(rtBlurA, rtBlurB, W >> 2, H >> 2);
+      if (cheapBloom) {
+        compositeMat.uniforms.tBloomB.value = rtBlurA.texture;
+      } else {
+        blur(rtBlurA, rtBlurB, W >> 2, H >> 2);
+        compositeMat.uniforms.tBloomB.value = rtBlurB.texture;
+      }
 
       // 4) 合成上屏
       compositeMat.uniforms.tScene.value = rtScene.texture;
       compositeMat.uniforms.tBloomA.value = rtBlurA.texture;
-      compositeMat.uniforms.tBloomB.value = rtBlurB.texture;
       compositeMat.uniforms.uTime.value = time;
       pass(compositeMat, null);
     }

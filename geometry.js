@@ -12,7 +12,6 @@ export {
   HALF_PI, AXIS_ROT, hash3, ensureCCW, memoClone, placeGeo, placeMatrix,
   scaledPlane, scaledSphere, scaledTorus, sphereSlice, boxSpan, tubeSpan,
 } from './src/propKit.js';
-export * from './src/decals.js';
 export * from './src/containers.js';
 export * from './src/level.js';
 export * from './src/backdrop.js';

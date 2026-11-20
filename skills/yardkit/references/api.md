@@ -6,8 +6,8 @@
 
 | 文件 | 内容 |
 |---|---|
-| `index.js` | 全量导出（234） |
-| `geometry.js` | 几何/道具/设施/关卡/贴花/手部/背板（225） |
+| `index.js` | 全量导出（231） |
+| `geometry.js` | 几何/道具/设施/关卡/手部/背板（220） |
 | `materials.js` | 材质系统（13）：`createMaterialStore`、`createMaterial`、`defaultMaterials` |
 | `src/materials/materials.js` | `registerSurface`、`surfaceNames`、`bakeAverage`、`createMaterial` |
 
@@ -49,20 +49,14 @@ const group = b.finish({ size: [1, 2, 0.1], colliders: [{ min: [-0.5, 0, -0.05],
 | `createProp(name, { seed, materials, color })` | 19 种：`barrel pallet pallet_stack crate_wood crate_stack ibc_tote cable_reel tire_stack jerry_can traffic_cone gas_cylinders pipe_stack tarp_cargo sandbags cardboard_boxes forklift generator dumpster toolbox_cart` |
 | `createFixture(name, …)` | 14 种：`jersey_barrier light_mast fence_panel guard_booth gate_arm bollard_mooring bollard_post sign_post floodlight_stand stairs_metal catwalk shelf_rack reefer_unit relay_node` |
 | `createContainer(type, …)` | `container20 / container40 / container40hc`，`{ color, wear, materials }` |
-| `createDecal(kind, …)` | 19 种标识/污渍（工业向，主题包慎用） |
 | `createHand('right', { material })` | 第一人称手；`.root` 挂 `camera`；`.update(dt, {})` |
 | `createSkyline({ materials, seed })` / `createLamps(...)` | 远景天际线 / 灯组 |
 | `createSky(sunDir, palette)` + `bakeEnvironment(renderer, mesh)` | 渐变天空 + 环境贴图 |
 | `createPost(renderer, { quality })` | 后处理：`uniforms.uBloom/uVignette/uGrain/uSat/uExposure/uTime`、`render(scene, camera, time)`、`setSize` |
 
-## 已有主题包
-
-| 包 | 入口 | 提供 |
-|---|---|---|
-| `packs/moon` | `installMoonPack({ wear })` | `regolith moonrock foil solar`；`createMoonSky/createMoonEnvironment/createMoonLighting`；5 个模型 + `createMoonModel` |
-| `packs/cozy` | `installCozyPack({ wear })` | `plaster painted_wood ceramic weave foliage`；`createCozySky/createCozyLighting`；8 个模型 + `createCozyModel` |
+库里**没有主题包**：主题由使用者用 `registerSurface` + `surfaceMap` + `createSky` + 光 + `createPost` 自己拼。
+`demos/showcase.js` 第三页有三套 100 行以内的示范（黄昏 / 沙漠 / 深夜）。
 
 ## 文档
 
-`docs/PACKS.md`（写包清单）、`docs/LESSONS-MOON.md`（12 条经验）、
-`docs/EXPERIMENT-MOON.md`（对照实验）、`docs/AB-LIGHTING.md`（打光 A/B）。
+`docs/THEMES.md`（怎么做自己的主题 + 7 条坑）、`docs/MATERIALS.md`（30 个表面的 tile/bump）。

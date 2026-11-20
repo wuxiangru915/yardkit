@@ -1,5 +1,6 @@
 // 材质入口：程序化 GLSL 表面（零贴图）+ 天空 / 后处理
 export { createMaterial, bakeAverage, registerSurface, surfaceNames } from './src/materials/materials.js';
+export { bakeSurfaces, getBakedSurface, setBakedSurface, clearBakedSurfaces } from './src/materials/bake.js';
 export { REGISTRY, NAMES } from './src/materials/registry.js';
 export { SURFS, DSL } from './src/materials/glsl.js';
 export { createSky, bakeEnvironment } from './src/materials/sky.js';

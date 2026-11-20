@@ -5,16 +5,36 @@
   "type": "module",
   "main": "./index.js",
   "exports": {
-    ".": "./index.js",
-    "./geometry": "./geometry.js",
-    "./materials": "./materials.js",
-    "./src/*": "./src/*"
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    },
+    "./geometry": {
+      "types": "./types/geometry.d.ts",
+      "import": "./geometry.js",
+      "default": "./geometry.js"
+    },
+    "./materials": {
+      "types": "./types/materials.d.ts",
+      "import": "./materials.js",
+      "default": "./materials.js"
+    },
+    "./quality": {
+      "types": "./types/quality.d.ts",
+      "import": "./src/quality.js",
+      "default": "./src/quality.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
   },
   "files": [
     "index.js",
     "geometry.js",
     "materials.js",
-    "src"
+    "src",
+    "types",
+    "NOTICE"
   ],
   "sideEffects": false,
   "keywords": [
@@ -28,22 +48,25 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "three": "^0.180.0"
+    "three": ">=0.178.0 <0.181.0"
   },
   "scripts": {
     "test": "node test/check.mjs",
     "demo": "python3 -m http.server 8177 --bind 127.0.0.1",
     "build:glsl": "node tools/build-glsl.mjs",
-    "render": "node test/render.mjs"
+    "render": "node test/render.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "playwright-core": "^1.63.0",
-    "postprocessing": "^6.39.4",
-    "three": "^0.180.0"
+    "three": "^0.180.0",
+    "@types/three": "^0.180.0",
+    "typescript": "^5.7.2"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wuxiangru915/yardkit.git"
   },
-  "homepage": "https://github.com/wuxiangru915/yardkit"
+  "homepage": "https://github.com/wuxiangru915/yardkit",
+  "types": "./types/index.d.ts"
 }

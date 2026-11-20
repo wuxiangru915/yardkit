@@ -1,110 +1,73 @@
 ---
 name: yardkit
-description: Build scenes and theme packs with yardkit, the zero-texture procedural three.js asset library at /home/wxr/.project/yardkit. Use when the user asks for a new style/theme (moon, cozy, industrial, night, snow, desert…), wants to add new surfaces/shaders, models, lighting or sky presets to the kit, needs a demo scene built from kit geometry, or asks to re-skin existing props without remodelling. Also use when the task mentions yardkit, 主题包, 换风格, 月球基地, 治愈包, or 用工具箱做一个场景.
+description: Use the yardkit procedural three.js asset library at /home/wxr/.project/yardkit to build scenes, and to help users make their own theme on top of it. Use when the task involves yardkit assets/props/levels/surfaces, needs a procedural (zero-texture) three.js scene, needs a new surface shader or a re-skin of existing props, or mentions yardkit, 换皮, 主题, 材质, 道具, 关卡.
 ---
 
-# yardkit workflow
+# yardkit
 
-The kit is a **procedural, zero-texture** three.js library: primitives → `PropBuilder` → batched meshes with
-`userData.size` + `userData.colliders`. Styles are *layers*, not forks: one kernel, many theme packs.
+零贴图、零模型文件的程序化 three.js 资产库：表面是 GLSL 算的，模型是原语拼的。
+**库里没有"主题包"**——主题（沙漠、夜城、地下基地…）是使用者用四层配置自己拼的，见 `docs/THEMES.md`。
 
-Base path: the yardkit repo root — `${KIT:-/home/wxr/.project/yardkit}` (the skill is self-contained; copy `assets/pack-template` into the repo's `packs/`).
-Read first when unfamiliar: `docs/PACKS.md`, `docs/LESSONS-MOON.md`.
+Base: `${KIT:-/home/wxr/.project/yardkit}`。先读 `docs/THEMES.md`（怎么做一个主题）和 `docs/MATERIALS.md`（30 个表面的 tile/bump 参数）。
 
-## Step 0 — decide the silhouette class (do this before writing code)
+## 库里有什么
 
-| The target theme is… | What works | Cost |
+| 层 | 入口 | 内容 |
 |---|---|---|
-| industrial / sci-fi / hard-surface (moon base, port, mine, lab) | re-skin existing props + a few new models | ~1 day |
-| low-poly / flat-shaded cozy (A Short Hike, Unpacking) | re-skin + flat colours, no detail | ~1 day |
-| realistic cozy, organic (leaves, cloth, cat, hands) | needs real modelling (Blender → glTF) | weeks |
+| 材质 | `materials.js` | 30 个程序化表面 + `createMaterial` / `bakeAverage` / `registerSurface` / `surfaceNames` |
+| 材质仓库 | `src/materials.js` | `createMaterialStore({ createMaterial, averages, surfaceMap })` → `.get(name)`、43 个 PBR 预设 |
+| 渲染 | `src/materials/{sky,post}.js` | `createSky` + `bakeEnvironment`；`createPost`（bloom / 暗角 / 颗粒 / 曝光 / 饱和 / 受伤红边） |
+| 造型 | `src/geo.js` | 原语 + `PropBuilder` / `RigBuilder` / `MeshBatcher` |
+| 模型 | `src/{props,fixtures,containers}.js` | 19 道具 + 14 设施 + 3 集装箱，`createProp` / `createFixture` / `createContainer` |
+| 关卡 | `src/level.js` | `createLevel({ materials, seed })`：`.box/.slab/.col/.place/.stairs/.catwalk/.stack/.label/.decal/.build()` |
+| 远景 | `src/{backdrop,vehicles}.js` | 天际线 / 灯组 / 船 / 龙门吊 / 海鸥（远景 LOD 用） |
+| 第一人称 | `src/{hands,weapons,viewmodel,enemies}.js` | 骨骼手 / PAC-9 / PAC-4 / 持枪视图模型 / 两种机甲敌人 |
 
-Say this out loud to the user before starting. Re-skinning changes **new/old, warm/cold, wet/dry** — it does not change
-"this is a shipping container or a habitat module". If the silhouettes differ, plan models, not shaders.
+`index.js` 全量导出（231 项）；按需 import 具体文件更省（浏览器没有 tree-shaking）。
 
-## Step 1 — plan (one short doc, then code)
+## 三条硬规则
 
-Write `docs/PLAN-<topic>.md`: goal, variables, file ownership, acceptance checks, cost estimate.
-A theme pack is **five parts** — say which ones you will write:
+1. **每块表面都要 `bakeAverage`**，存进 `averages` 传给 store，否则远处会一直跑全精度 shader（核显直接掉帧）。
+2. **金属必须有环境贴图**：`scene.environment = bakeEnvironment(renderer, sky.mesh)`，否则 metal / gunmetal 全黑。
+3. **几何的碰撞盒用 `userData.colliders`（局部坐标，y=0 在地面）**：`createLevel().place()` 会自己变换后登记，手摆道具时也要这么做。
 
-1. `surfaces.js` — new GLSL `void surf(vec2 uv)` bodies
-2. `surfaceMap` — kit material name → pack surface (this is what re-skins 40+ props)
-3. `sky.js` — background, fog, environment
-4. `lighting.js` — one function `create<Name>Lighting(scene)`
-5. `models.js` — new `PropBuilder` models (optional but usually needed)
-
-## Step 2 — kernel hooks (never edit `src/` to add a style)
+## 做一个主题（四层）
 
 ```js
-import { registerSurface } from '../src/materials/materials.js';
-registerSurface(name, glslBody, { tile, bump, amount, ao });   // runtime, idempotent by name
+// 1) 只在库里没有这个材质时才写表面
+registerSurface('my_sand', `void surf(vec2 uv){ ... }`, { tile: 3, bump: 2, amount: 0.4 });
 
-createMaterialStore({ createMaterial, averages, surfaceMap });  // surfaceMap overrides name → shader
+// 2) 映射：库里的道具材质名 → 你的表面名（一行换掉 40 多个道具的皮）
+const materials = createMaterialStore({ createMaterial, averages: AVG, surfaceMap: { concrete: 'my_sand' } });
+
+// 3) 天空色板
+const sky = createSky(sunDir, { zenith, horizon, sun, cloud, fog });
+scene.add(sky.mesh); scene.environment = bakeEnvironment(renderer, sky.mesh);
+scene.fog = new THREE.FogExp2(palette.fog, 0.012);
+
+// 4) 一盏主光 + 一盏半球光 + createPost() 的数字
 ```
 
-- `createMaterial(name, opts)` accepts `{ tile, bump, amount, tint, avg }`; `amount` is wear/grime.
-- Pack's `install<Name>Pack({ wear })` must return `{ surfaces, surfaceMap, createMaterial }` and wrap
-  `createMaterial` so every surface gets the pack's wear (see `packs/moon/index.js`, `packs/cozy/index.js`).
-- Bake averages with `bakeAverage(renderer, name)` after `install…Pack()` so new surfaces are included.
+调参优先级：**光 → 雾 → 后处理 → surfaceMap → 新表面**。前四样就能拿到 90% 的效果，
+写新 shader 是最后手段（也是唯一容易失控的一步）。理由和踩坑见 `docs/THEMES.md`。
 
-## Step 3 — models
-
-Use `PropBuilder` (`src/geo.js`): `new PropBuilder(mats, name, seed)`, `.add(mat, geo, xf, col)`, `push/pop`,
-then `.finish({ size, colliders })`. Primitives: `box bevelBox cyl tube lathe rangeBox roundPoly2D
-extrudeProfile extrudeX extrudeZ latheSection loftSections mergeGeos`. Helpers: `propKit.placeGeo/scaledPlane/
-boxSpan/tubeSpan`, `propUtils.roundedCornerPlate/strapRibbon/deformGeo`.
-
-Rules: metres, Y-up, origin at ground centre, `size` = `[w, h, d]`, colliders in **local** coords, all randomness
-from `createRng(seed)`, zero textures, Chinese names/comments, exports `create<Thing>` + `<PACK>_MODEL_NAMES` +
-`create<Pack>Model(name, opts)`.
-
-## Step 4 — verify (all three, every time)
+## 验收（改完必须跑）
 
 ```bash
 cd "$KIT"
-node test/check.mjs            # expect "N checks passed", 0 failed
-node test/render.mjs           # every demo "ready=true errors=0"
-md5sum -c /tmp/kit-src-baseline.txt   # kernel must be untouched
+node test/check.mjs                 # 期望 "N checks passed"，0 failed
+node test/render.mjs                # 每个 demo "ready=true errors=0"（自动找 chromium，可用 CHROME_PATH 覆盖）
+bash skills/yardkit/scripts/verify.sh
 ```
 
-Headless screenshot recipe: `references/verification.md`. Kernel baseline: `md5sum src/*.js src/materials/*.js
-assets/glsl/*.glsl > /tmp/kit-src-baseline.txt` *before* touching anything.
+改 `src/` 之前先拍基线：`md5sum src/*.js src/materials/*.js assets/glsl/*.glsl > /tmp/kit-src-baseline.txt`。
+只写演示 / 主题（`demos/`）时不要动 `src/`。
 
-## Step 5 — parallel agents (when the user asks for more than one pack)
+## 坑
 
-One agent per pack, disjoint file ownership, no shared files:
-
-| Owner | May write | Must not touch |
-|---|---|---|
-| agent A | `packs/<a>/**`, `demos/<a>-*` | `src/`, other packs, `test/`, docs |
-| agent B | `packs/<b>/**`, `demos/<b>-*` | same |
-| you | `test/`, `docs/`, `shots/` | agent files |
-
-Brief each agent with: goal + why, the five parts, API paths, the three acceptance commands, *exact* chromium and
-playwright paths from `references/verification.md`, and "report real numbers, not claims". Afterwards verify
-yourself: md5 kernel, read the screenshots, run the suite.
-
-## Step 6 — deliver
-
-- Demo page `demos/<name>.html` + `.js` with HUD line; register it in `test/render.mjs` targets.
-- Screenshot into `shots/`, composite comparisons with PIL (see `references/verification.md`).
-- Write `docs/EXPERIMENT-<topic>.md` (question, variables, result, failures, cost) and add measured cost to
-  `docs/PACKS.md`.
-- State the honest limits (what still looks wrong) — the user values that more than polish.
-
-## Pitfalls (all cost us real time)
-
-1. **Metal without an environment renders black.** Ship a tiny env (`createMoonEnvironment` style: canvas gradient →
-   `PMREMGenerator.fromScene`) or map metals to non-metal surfaces.
-2. **Wear is a theme parameter.** Wrap `createMaterial` and clamp `amount`; a moon base has dust, not rust.
-3. **Noise scale decides the material.** Craters too small read as concrete; leaf clusters too small read as noise.
-4. **One pack per scene.** Mixing packs reads as "abandoned industrial park".
-5. **Don't tune the camera to hide a bad pack** — fix the pack, re-shoot the same camera.
-6. **`mergeGeos` keeps only position/normal/uv/color** — custom attributes need their own mesh.
-7. **Never let an agent edit `src/` or `test/` to make numbers pass.** If a check count changes because a module
-   appeared, that is correct — report it, don't "fix" it.
-
-## Templates
-
-`assets/pack-template/` — copy to `packs/<name>/`, fill in, then:
-`node test/check.mjs` should auto-pick it up only after you add it to `test/check.mjs` (your file, not the agent's).
+1. 表面改了要重新 `bakeAverage`，否则远处还是旧的平均色。
+2. `assets/glsl/*.glsl` 是源，`src/materials/glsl.js` 是 `tools/build-glsl.mjs` 生成的——改完要重跑构建。
+3. `MATERIAL_PRESETS` 的 roughness/metalness 在走 GLSL 时**不生效**，只有 `tint` 会被带过去。
+4. `mergeGeos` 只保留 position / normal / uv / color。
+5. 雾色 ≠ 地平线色时，地面尽头会浮一条灰带。
+6. 一个场景只用一套表面，混搭会读成"废弃工业园"。

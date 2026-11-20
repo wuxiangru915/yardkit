@@ -4,7 +4,6 @@ export { createMaterial, bakeAverage, registerSurface, surfaceNames, NAMES, REGI
 export { createSky, bakeEnvironment } from './src/materials/sky.js';
 export { createPost } from './src/materials/post.js';
 export { GLSL_NOISE } from './src/materials/noise.js';
-export * from './src/decals.js';
 export * from './src/containers.js';
 export * from './src/level.js';
 export * from './src/backdrop.js';

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><link rel="icon" href="data:,">
+<title>yardkit · 性能测量（bench）</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; background: #10141a; color: #e6e1d6;
+    font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  #wrap { display: flex; gap: 16px; padding: 16px; align-items: flex-start; }
+  #view { width: 1280px; height: 720px; display: block; background: #000;
+    border: 1px solid #2a323c; image-rendering: pixelated; }
+  #panel { flex: 1 1 420px; min-width: 360px; }
+  h1 { font-size: 14px; letter-spacing: .08em; color: #e8c37a; margin: 0 0 8px; }
+  h2 { font-size: 12px; letter-spacing: .06em; color: #9fb4bd; margin: 18px 0 6px;
+       border-bottom: 1px solid #2a323c; padding-bottom: 3px; }
+  button { font: inherit; padding: 5px 12px; margin-right: 6px; cursor: pointer;
+    background: #1d2733; color: #e6e1d6; border: 1px solid #37455a; border-radius: 3px; }
+  button:disabled { opacity: .45; cursor: default; }
+  #bar { position: fixed; right: 8px; bottom: 8px; color: #7d8b99; }
+  table { border-collapse: collapse; width: 100%; margin-top: 4px; }
+  th, td { text-align: right; padding: 2px 6px; border-bottom: 1px solid #1e2732;
+    white-space: nowrap; font-variant-numeric: tabular-nums; }
+  th { color: #8b9aa8; font-weight: normal; }
+  td.l, th.l { text-align: left; }
+  .ok { color: #7fc78a; } .warn { color: #e8c37a; } .bad { color: #e07f7f; }
+  .dim { color: #6e7c8a; }
+  pre { background: #0b0f14; border: 1px solid #1e2732; padding: 10px; overflow: auto;
+    color: #cfe3d0; font-size: 11px; line-height: 1.5; }
+  #error { color: #e07f7f; white-space: pre-wrap; }
+  #env { color: #9fb4bd; }
+  #env b { color: #e6e1d6; font-weight: normal; }
+  summary { color: #8b9aa8; cursor: pointer; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "../node_modules/three/build/three.module.js",
+               "three/addons/": "../node_modules/three/examples/jsm/" } }
+</script></head>
+<body>
+<div id="wrap">
+  <canvas id="view" width="1280" height="720"></canvas>
+  <div id="panel">
+    <h1>YARDKIT · PERF BENCH</h1>
+    <div id="env">检测中…</div>
+    <div style="margin-top:10px">
+      <button id="start">开始测量</button>
+      <button id="stop" disabled>停止</button>
+    </div>
+    <div id="prog" class="dim" style="margin-top:6px">未开始</div>
+    <div id="error"></div>
+
+    <h2>矩阵：材质 × 模式 × 分辨率缩放</h2>
+    <div class="dim">单元格 = p50 / p95 (ms)。绿色 p95 ≤ 20ms，黄色 ≤ 33.3ms（30fps），红 = 更慢。列头是 pixelRatio 乘数 / drawingBuffer 尺寸。</div>
+    <div id="matrix"></div>
+
+    <h2>后处理开销（scale 1.0，最重材质 live）</h2>
+    <div id="post"></div>
+
+    <h2>推荐配置</h2>
+    <div id="rec"></div>
+
+    <h2>原始数据</h2>
+    <details><summary>JSON（可复制给 issue / 同事）</summary><pre id="raw">—</pre></details>
+  </div>
+</div>
+<div id="bar">tools/bench.html · 本地静态页面，不联网</div>
+<script type="module" src="./bench.js"></script>
+</body></html>

@@ -77,48 +77,133 @@ for (const [mod, names] of [
   } catch { /* 模块还没抽出来 */ }
 }
 
-// 主题包：注册表面 + 覆盖映射
-try {
-  const moon = await import('../packs/moon/index.js');
-  const pack = moon.installMoonPack();
-  for (const s of moon.MOON_SURFACES) {
-    const mat = pack.createMaterial(s, {});
-    if (!mat || !mat.isMaterial) throw new Error('pack surface failed: ' + s);
+// —— 画质分档 / 动态分辨率（纯逻辑，不需要 WebGL） ——
+const quality = await import('../src/quality.js');
+
+function expect(label, fn) {
+  try {
+    fn();
+    results.push({ label, meshes: 0, verts: 0, size: [1, 1, 1] });
+  } catch (e) {
+    fails.push({ label, error: e.message });
   }
-  if (Object.keys(pack.surfaceMap).length < 8) throw new Error('surfaceMap too small');
-  results.push({ label: 'pack:moon', meshes: 0, verts: 0, size: [moon.MOON_SURFACES.length, Object.keys(pack.surfaceMap).length, 0] });
-} catch (e) {
-  fails.push({ label: 'pack:moon', error: e.message });
 }
+function ok(cond, msg) { if (!cond) throw new Error(msg || 'assertion failed'); }
+const eq = (actual, expected, what = '') => ok(actual === expected, `${what} expected ${expected}, got ${actual}`);
 
-// 月球包：5 个新模型（存在才测）
-try {
-  const mm = await import('../packs/moon/models.js');
-  if (mm.MOON_MODEL_NAMES) {
-    for (const n of mm.MOON_MODEL_NAMES) check('moon:' + n, () => mm.createMoonModel(n, { seed: 3 }));
-  }
-} catch { /* pack 还没就绪 */ }
-
-// 治愈包：表面 + 模型（存在才测）
-try {
-  const cozy = await import('../packs/cozy/index.js');
-  const pack = cozy.installCozyPack();
-  for (const s of pack.surfaces) {
-    const mat = pack.createMaterial(s, {});
-    if (!mat || !mat.isMaterial) throw new Error('cozy surface failed: ' + s);
-  }
-  const cm = await import('../packs/cozy/models.js');
-  if (cm.COZY_MODEL_NAMES) {
-    for (const n of cm.COZY_MODEL_NAMES) check('cozy:' + n, () => cm.createCozyModel(n, { seed: 2 }));
-  }
-  results.push({ label: 'pack:cozy', meshes: 0, verts: 0, size: [pack.surfaces.length, Object.keys(pack.surfaceMap).length, 0] });
-} catch { /* pack 还没就绪 */ }
-
-for (const k of geometry.DECAL_KINDS) check('decal:' + k, () => {
-  const d = geometry.createDecal(k, { scale: 0.5 });
-  return { isObject3D: true, root: new THREE.Mesh(new THREE.PlaneGeometry(1, 1), d.material) };
+expect('quality:tier-phone', () => eq(quality.pickTier({ ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)', renderer: '' }), 'low'));
+expect('quality:tier-intel', () => eq(quality.pickTier({ renderer: 'ANGLE (Intel(R) UHD Graphics)' }), 'medium'));
+expect('quality:tier-nvidia', () => eq(quality.pickTier({ renderer: 'ANGLE (NVIDIA GeForce RTX 4070)' }), 'high'));
+expect('quality:tier-arc', () => eq(quality.pickTier({ renderer: 'ANGLE (Intel(R) Arc(TM) A770)' }), 'high'));
+expect('quality:tier-swiftshader', () => eq(quality.pickTier({ renderer: 'SwiftShader' }), 'low'));
+expect('quality:tier-weak-gpu', () => eq(quality.pickTier({ renderer: 'ANGLE (Qualcomm Adreno 730)' }), 'medium'));
+expect('quality:config', () => {
+  const low = quality.tierConfig('low'), high = quality.tierConfig('high');
+  ok(low.scale < high.scale, 'low.scale < high.scale');
+  ok(low.shadow < quality.tierConfig('ultra').shadow, 'low.shadow < ultra.shadow');
+  eq(low.material, 'flat', 'low.material');
+  eq(quality.detectRenderer(), '', 'detectRenderer in node');
 });
-console.log('materials:', materials.NAMES.length, '| decals:', geometry.DECAL_KINDS.length);
+expect('quality:dyn-down', () => {
+  const dyn = quality.createDynamicResolution();
+  for (let i = 0; i < 200; i++) dyn.update(40);
+  eq(dyn.scale, 0.6, 'floor scale');
+  eq(dyn.didHitFloor, true, 'didHitFloor');
+});
+expect('quality:dyn-up', () => {
+  const dyn = quality.createDynamicResolution();
+  for (let i = 0; i < 100; i++) dyn.update(40);
+  ok(dyn.scale <= 0.7, `pre condition, scale=${dyn.scale}`);
+  for (let i = 0; i < 200; i++) dyn.update(8);
+  eq(dyn.scale, 1.0, 'recovered scale');
+});
+expect('quality:dyn-stable', () => {
+  const dyn = quality.createDynamicResolution();
+  for (let i = 0; i < 60; i++) dyn.update(i % 2 ? 8 : 40);   // 平均 24ms，先降到 0.6
+  const base = dyn.changes;
+  for (let i = 0; i < 200; i++) dyn.update(i % 2 ? 8 : 40);   // 继续抖动
+  ok(dyn.changes - base <= 2, `oscillated ${dyn.changes - base} times at floor`);
+});
+expect('quality:dyn-down-faster', () => {
+  const dyn = quality.createDynamicResolution();
+  let down = 0;
+  while (dyn.scale > 0.75 && down < 300) { dyn.update(40); down++; }
+  const from = dyn.scale;
+  ok(from <= 0.7, `pre condition, scale=${from}`);
+  let up = 0;
+  while (dyn.scale < 0.8 && up < 300) { dyn.update(8); up++; }
+  ok(down < up, `down=${down} frames, up=${up} frames`);
+});
+
+expect('quality:material-flat', () => {
+  const m = materials.createMaterial('concrete', { tier: 'flat' });
+  ok(m.isMeshStandardMaterial, 'is MeshStandardMaterial');
+  ok(!m.userData.uniforms, 'no uniforms');
+  eq(m.onBeforeCompile, THREE.Material.prototype.onBeforeCompile, 'no onBeforeCompile override');
+  eq(m.roughness, 0.85, 'roughness');
+  eq(m.metalness, 0.05, 'metalness');
+  eq(m.userData.tier, 'flat', 'tier label');
+});
+expect('quality:material-live', () => {
+  const m = materials.createMaterial('concrete', { tier: 'live' });
+  ok(!!m.userData.uniforms, 'has uniforms');
+  eq(m.userData.tier, 'live', 'tier label');
+});
+expect('quality:material-baked-fallback', () => {
+  const warn = console.warn;
+  console.warn = () => {};
+  try {
+    const m = materials.createMaterial('concrete', { tier: 'baked' });
+    ok(m.isMeshStandardMaterial && !!m.userData.uniforms, 'usable after fallback');
+    eq(m.userData.tier, 'live', 'fell back to live');
+  } finally { console.warn = warn; }
+});
+expect('quality:material-baked-texture', () => {
+  materials.setBakedSurface('concrete', { alb: new THREE.Texture(), meta: new THREE.Texture() });
+  try {
+    const m = materials.createMaterial('concrete', { tier: 'baked' });
+    eq(m.userData.uniforms.uBake.value, 1, 'uses baked textures');
+    eq(m.userData.tier, 'baked', 'tier label');
+  } finally { materials.clearBakedSurfaces(); }
+});
+expect('quality:material-store-tier', () => {
+  const store = materials.createMaterialStore({ createMaterial: materials.createMaterial, tier: 'flat' });
+  const m = store.get('concrete');
+  ok(m.userData.tier === 'flat' && !m.userData.uniforms, 'store passes tier through');
+});
+
+expect('quality:auto-manual-fixed', () => {
+  const aq = quality.createAutoQuality({ tier: 'high' });
+  eq(aq.tier, 'high', 'tier');
+  eq(aq.scale, 1.0, 'initial scale');
+  for (let i = 0; i < 400; i++) aq.update(40);
+  eq(aq.scale, 0.6, 'floor scale');
+  eq(aq.tier, 'high', 'explicit tier never drops');
+  aq.dispose();
+});
+expect('quality:auto-tier-drop', () => {
+  const seen = [];
+  const aq = quality.createAutoQuality({ tier: 'high', allowTierDrop: true, onTierChange: (to, from) => seen.push(`${from}->${to}`) });
+  for (let i = 0; i < 400; i++) aq.update(40);
+  eq(aq.tier, 'low', 'cascaded to low');
+  ok(seen.length >= 2, `onTierChange fired ${seen.length} times`);
+  aq.dispose();
+});
+expect('quality:auto-low-floor', () => {
+  const aq = quality.createAutoQuality({ tier: 'low' });
+  eq(aq.tier, 'low', 'tier');
+  eq(aq.scale, 0.7, 'initial scale');
+  for (let i = 0; i < 200; i++) aq.update(40);
+  eq(aq.scale, 0.6, 'floor scale');
+  eq(aq.tier, 'low', 'stays low');
+  eq(aq.setTier('high'), 'high', 'setTier return');
+  eq(aq.scale, 0.6, 'setTier keeps current scale, does not jump up');
+  for (let i = 0; i < 200; i++) aq.update(8);
+  eq(aq.scale, 1.0, 'climbs back with fast frames');
+  aq.dispose();
+});
+
+console.log('materials:', materials.NAMES.length);
 const rows = results.map((r) => `${r.label.padEnd(26)} meshes=${String(r.meshes).padStart(3)} verts=${String(r.verts).padStart(7)} size=${r.size.join('×')}`);
 console.log(rows.join('\n'));
 if (fails.length) {
